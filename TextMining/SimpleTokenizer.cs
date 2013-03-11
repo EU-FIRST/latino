@@ -14,7 +14,7 @@ namespace Latino.TextMining
     {
         AllChars,    // equivalent to [^\s]+
         AlphaOnly,   // equivalent to \p{L}+
-        AlphanumOnly // equivalent to [\p{L}0-9]+
+        AlphanumOnly // equivalent to [\p{L}\d]+
     }
 
     /* .-----------------------------------------------------------------------
@@ -75,7 +75,7 @@ namespace Latino.TextMining
             }
         }
 
-        public Enumerator GetEnumerator()//TODO: do this "trick" in every tokenizer
+        public ITokenizerEnumerator GetEnumerator()//TODO: do this "trick" in every tokenizer
         {
             return new Enumerator(mText, mType, mMinTokenLen);
         }
@@ -114,7 +114,7 @@ namespace Latino.TextMining
            |
            '-----------------------------------------------------------------------
         */
-        public class Enumerator : IEnumerator<string>
+        public class Enumerator : ITokenizerEnumerator
         {
             private string mText;
             private TokenizerType mType;
@@ -176,6 +176,14 @@ namespace Latino.TextMining
                 {
                     Utils.ThrowException(mStartIdx == -1 ? new InvalidOperationException() : null);
                     return mText.Substring(mStartIdx, mEndIdx - mStartIdx + 1);
+                }
+            }
+
+            public Pair<int, int> CurrentPos 
+			{
+                get 
+				{
+                    return new Pair<int, int>(mStartIdx, mEndIdx+1);
                 }
             }
 

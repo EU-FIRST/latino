@@ -284,7 +284,8 @@ namespace Latino
             str = str.Replace("\r", "").Replace('\n', ' ').Trim();
             if (compact)
             {
-                str = Regex.Replace(str, @"\s\s+", " ");
+                //str = Regex.Replace(str, @"\s\s+", " ");
+                str = Regex.Replace(str, @"\s+", " ");
             }
             return str;
         }
@@ -436,6 +437,11 @@ namespace Latino
             return null;
         }
 
+        public static string GetConfigValue(string key)
+        {
+            return GetConfigValue(key, /*defaultValue=*/null); // throws ArgumentNullException, ConfigurationErrorsException
+        }
+
         public static string GetConfigValue(string key, string defaultValue)
         {
             ThrowException(key == null ? new ArgumentNullException("key") : null);
@@ -477,51 +483,6 @@ namespace Latino
                 dict.Add(key, dat);
             }
             return dict;
-        }
-
-        // *** SparseVector utilities ***
-
-        public static double GetVecLenL2(SparseVector<double> vec)
-        {
-            ThrowException(vec == null ? new ArgumentNullException("vec") : null);
-            double len = 0;
-            ArrayList<double> datInner = vec.InnerDat;
-            foreach (double val in datInner)
-            {
-                len += val * val;
-            }
-            return Math.Sqrt(len);
-        }
-
-        public static double GetVecLenL2(SparseVector<double>.ReadOnly vec)
-        {
-            ThrowException(vec == null ? new ArgumentNullException("vec") : null);
-            return GetVecLenL2(vec.Inner);
-        }
-
-        public static void NrmVecL2(SparseVector<double> vec)
-        {
-            ThrowException(vec == null ? new ArgumentNullException("vec") : null);
-            double len = GetVecLenL2(vec);
-            ThrowException(len == 0 ? new InvalidOperationException() : null);
-            ArrayList<double> datInner = vec.InnerDat;
-            for (int i = 0; i < vec.Count; i++)
-            {
-                vec.SetDirect(i, datInner[i] / len);
-            }
-        }
-
-        public static bool TryNrmVecL2(SparseVector<double> vec)
-        {
-            ThrowException(vec == null ? new ArgumentNullException("vec") : null);
-            double len = GetVecLenL2(vec);
-            if (len == 0) { return false; }
-            ArrayList<double> datInner = vec.InnerDat;
-            for (int i = 0; i < vec.Count; i++)
-            {
-                vec.SetDirect(i, datInner[i] / len);
-            }
-            return true;
         }
 
         // *** XML utilities ***

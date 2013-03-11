@@ -30,8 +30,8 @@ namespace Latino.Model
             = null;
         private ArrayList<Cluster> mChildren
             = new ArrayList<Cluster>();
-        private Set<IdxDat<double>> mItems
-            = new Set<IdxDat<double>>();
+        private Set<int> mItems
+            = new Set<int>();
         private object mClusterInfo
             = null;
 
@@ -47,7 +47,7 @@ namespace Latino.Model
         public Cluster Parent
         {
             get { return mParent; }
-            set { mParent = null; }
+            set { mParent = value; }
         }
 
         public ArrayList<Cluster>.ReadOnly Children
@@ -76,7 +76,7 @@ namespace Latino.Model
             mChildren.Clear();
         }
 
-        public Set<IdxDat<double>> Items
+        public Set<int> Items
         {
             get { return mItems; }
         }
@@ -89,10 +89,7 @@ namespace Latino.Model
 
         public SparseVector<double> ComputeCentroid(IUnlabeledExampleCollection<SparseVector<double>> dataset, CentroidType type)
         {
-            int[] tmp = new int[mItems.Count];
-            int i = 0;
-            foreach (IdxDat<double> item in mItems) { tmp[i++] = item.Idx; }
-            return ModelUtils.ComputeCentroid(tmp, dataset, type); // throws ArgumentNullException, ArgumentValueException, InvalidOperationException
+            return ModelUtils.ComputeCentroid(mItems, dataset, type); // throws ArgumentNullException, ArgumentValueException, InvalidOperationException
         }
 
         public override string ToString()
@@ -144,7 +141,7 @@ namespace Latino.Model
         {
             Utils.ThrowException(writer == null ? new ArgumentNullException("writer") : null);
             // the following statements throw serialization-related exceptions
-            writer.WriteObject(mParent);            
+            //writer.WriteObject(mParent);   // *** this will become endless loop when child will try to save parent and them parent the child again... (TODO but now the hierarchy must be saved from the root node which is not ok!)
             mChildren.Save(writer); // *** this will not work properly if two or more parents share a child cluster
             mItems.Save(writer);
             writer.WriteObject(mClusterInfo);
@@ -154,9 +151,10 @@ namespace Latino.Model
         {
             Utils.ThrowException(reader == null ? new ArgumentNullException("reader") : null);
             // the following statements throw serialization-related exceptions
-            mParent = reader.ReadObject<Cluster>();
+            //mParent = reader.ReadObject<Cluster>();
             mChildren = new ArrayList<Cluster>(reader);
-            mItems = new Set<IdxDat<double>>(reader);
+            foreach (Cluster child in mChildren) child.Parent = this; //instead mParent = reader.ReadObject<Cluster>(); since it becomes endless lop when saving (TODO but now the hierarchy must be saved from the root node which is not ok!)
+            mItems = new Set<int>(reader);
             mClusterInfo = reader.ReadObject<object>();
         }        
     }

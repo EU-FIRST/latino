@@ -102,25 +102,23 @@ namespace Latino.Web
 
         public static string GetWebPage(string url)
         {
-            CookieContainer cookies = null;
-            string dummy;
-            return GetWebPage(url, /*refUrl=*/null, ref cookies, Encoding.UTF8, mDefaultTimeout, out dummy); // throws ArgumentNullException, ArgumentOutOfRangeException, UriFormatException, WebException
+            return GetWebPage(url, /*refUrl=*/null); // throws ArgumentNullException, ArgumentOutOfRangeException, UriFormatException, WebException
         }
 
         public static string GetWebPage(string url, string refUrl)
         {
             CookieContainer cookies = null;
-            string dummy;
-            return GetWebPage(url, refUrl, ref cookies, Encoding.UTF8, mDefaultTimeout, out dummy); // throws ArgumentNullException, ArgumentOutOfRangeException, UriFormatException, WebException
+            return GetWebPage(url, refUrl, ref cookies); // throws ArgumentNullException, ArgumentOutOfRangeException, UriFormatException, WebException
         }
 
         public static string GetWebPage(string url, string refUrl, ref CookieContainer cookies)
         {
             string dummy;
-            return GetWebPage(url, refUrl, ref cookies, Encoding.UTF8, mDefaultTimeout, out dummy); // throws ArgumentNullException, ArgumentOutOfRangeException, UriFormatException, WebException
+            return GetWebPage(url, refUrl, ref cookies, Encoding.UTF8, mDefaultTimeout, out dummy, /*authHeader=*/null); // throws ArgumentNullException, ArgumentOutOfRangeException, UriFormatException, WebException
         }
 
-        public static string GetWebPage(string url, string refUrl, ref CookieContainer cookies, Encoding htmlEncoding, int timeout, out string responseUri)
+        public static string GetWebPage(string url, string refUrl, ref CookieContainer cookies, Encoding htmlEncoding, int timeout, out string responseUri,
+            string authHeader)
         {            
             Utils.ThrowException(url == null ? new ArgumentNullException("url") : null);
             Utils.ThrowException(htmlEncoding == null ? new ArgumentNullException("htmlEncoding") : null);
@@ -137,6 +135,10 @@ namespace Latino.Web
                 request.Accept = "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,*/*;q=0.5";
                 request.Headers.Add("Accept-Language", "en-us,en;q=0.5");
                 request.Headers.Add("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+                if (authHeader != null)
+                {
+                    request.Headers.Add("Authorization", authHeader);
+                }
                 if (cookies == null) { cookies = new CookieContainer(); }
                 request.CookieContainer = cookies;
                 if (refUrl != null) { request.Referer = refUrl; }

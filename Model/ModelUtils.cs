@@ -215,7 +215,8 @@ namespace Latino.Model
                 }
                 vecCount++;
             }
-            Utils.ThrowException(vecCount == 0 ? new ArgumentValueException("vecList") : null);
+            //Utils.ThrowException(vecCount == 0 ? new ArgumentValueException("vecList") : null);
+            if (vecCount == 0) { return new SparseVector<double>(); }
             SparseVector<double> centroid = new SparseVector<double>();
             switch (type)
             {
@@ -239,12 +240,15 @@ namespace Latino.Model
                     {
                         vecLen += item.Value * item.Value;
                     }
-                    Utils.ThrowException(vecLen == 0 ? new InvalidOperationException() : null);
+                    //Utils.ThrowException(vecLen == 0 ? new InvalidOperationException() : null);
                     vecLen = Math.Sqrt(vecLen);
-                    foreach (KeyValuePair<int, double> item in tmp)
+                    if (vecLen > 0)
                     {
-                        centroid.InnerIdx.Add(item.Key);
-                        centroid.InnerDat.Add(item.Value / vecLen);
+                        foreach (KeyValuePair<int, double> item in tmp)
+                        {
+                            centroid.InnerIdx.Add(item.Key);
+                            centroid.InnerDat.Add(item.Value / vecLen);
+                        }
                     }
                     break;
             }
@@ -275,7 +279,8 @@ namespace Latino.Model
                 }
                 vecCount++;
             }
-            Utils.ThrowException(vecCount == 0 ? new ArgumentValueException("vecIdxList") : null);
+            //Utils.ThrowException(vecCount == 0 ? new ArgumentValueException("vecIdxList") : null);
+            if (vecCount == 0) { return new SparseVector<double>(); }
             SparseVector<double> centroid = new SparseVector<double>();
             switch (type)
             {
@@ -299,12 +304,15 @@ namespace Latino.Model
                     {
                         vecLen += item.Value * item.Value;
                     }
-                    Utils.ThrowException(vecLen == 0 ? new InvalidOperationException() : null);
+                    //Utils.ThrowException(vecLen == 0 ? new InvalidOperationException() : null);
                     vecLen = Math.Sqrt(vecLen);
-                    foreach (KeyValuePair<int, double> item in tmp)
+                    if (vecLen > 0)
                     {
-                        centroid.InnerIdx.Add(item.Key);
-                        centroid.InnerDat.Add(item.Value / vecLen);
+                        foreach (KeyValuePair<int, double> item in tmp)
+                        {
+                            centroid.InnerIdx.Add(item.Key);
+                            centroid.InnerDat.Add(item.Value / vecLen);
+                        }
                     }
                     break;
             }
@@ -357,12 +365,15 @@ namespace Latino.Model
                     {
                         vecLen += item.Value * item.Value;
                     }
-                    Utils.ThrowException(vecLen == 0 ? new InvalidOperationException() : null);
+                    //Utils.ThrowException(vecLen == 0 ? new InvalidOperationException() : null);
                     vecLen = Math.Sqrt(vecLen);
-                    foreach (KeyValuePair<int, double> item in tmp)
+                    if (vecLen > 0)
                     {
-                        centroid.InnerIdx.Add(item.Key);
-                        centroid.InnerDat.Add(item.Value / vecLen);
+                        foreach (KeyValuePair<int, double> item in tmp)
+                        {
+                            centroid.InnerIdx.Add(item.Key);
+                            centroid.InnerDat.Add(item.Value / vecLen);
+                        }
                     }
                     break;
             }
@@ -445,7 +456,91 @@ namespace Latino.Model
             return dataset;
         }
 
-        // *** Fast sparse dot product computation ***
+        // *** Sparse vector utilities ***
+
+        public static double GetVecLenL2(SparseVector<double> vec)
+        {
+            Utils.ThrowException(vec == null ? new ArgumentNullException("vec") : null);
+            double len = 0;
+            ArrayList<double> datInner = vec.InnerDat;
+            foreach (double val in datInner)
+            {
+                len += val * val;
+            }
+            return Math.Sqrt(len);
+        }
+
+        public static double GetVecLenL2(SparseVector<double>.ReadOnly vec)
+        {
+            Utils.ThrowException(vec == null ? new ArgumentNullException("vec") : null);
+            return GetVecLenL2(vec.Inner);
+        }
+
+        public static void NrmVecL2(SparseVector<double> vec)
+        {
+            Utils.ThrowException(vec == null ? new ArgumentNullException("vec") : null);
+            double len = GetVecLenL2(vec);
+            Utils.ThrowException(len == 0 ? new InvalidOperationException() : null);
+            ArrayList<double> datInner = vec.InnerDat;
+            for (int i = 0; i < vec.Count; i++)
+            {
+                vec.SetDirect(i, datInner[i] / len);
+            }
+        }
+
+        public static bool TryNrmVecL2(SparseVector<double> vec)
+        {
+            Utils.ThrowException(vec == null ? new ArgumentNullException("vec") : null);
+            double len = GetVecLenL2(vec);
+            if (len == 0) { return false; }
+            ArrayList<double> datInner = vec.InnerDat;
+            for (int i = 0; i < vec.Count; i++)
+            {
+                vec.SetDirect(i, datInner[i] / len);
+            }
+            return true;
+        }
+
+        public static void CutLowWeights(ref SparseVector<double> vec, double cutLowWgtPerc)
+        {
+            Utils.ThrowException(vec == null ? new ArgumentNullException("vec") : null);
+            Utils.ThrowException(cutLowWgtPerc < 0 || cutLowWgtPerc >= 1 ? new ArgumentValueException("cutLowWgtPerc") : null);
+            if (cutLowWgtPerc > 0)
+            {
+                double wgtSum = 0;
+                ArrayList<KeyDat<double, int>> tmp = new ArrayList<KeyDat<double, int>>(vec.Count);
+                foreach (IdxDat<double> item in vec)
+                {
+                    wgtSum += item.Dat;
+                    tmp.Add(new KeyDat<double, int>(item.Dat, item.Idx));
+                }
+                tmp.Sort();
+                double cutSum = cutLowWgtPerc * wgtSum;
+                double cutWgt = -1;
+                foreach (KeyDat<double, int> item in tmp)
+                {
+                    cutSum -= item.Key;
+                    if (cutSum <= 0)
+                    {
+                        cutWgt = item.Key;
+                        break;
+                    }
+                }
+                SparseVector<double> newVec = new SparseVector<double>();
+                if (cutWgt != -1)
+                {
+                    foreach (IdxDat<double> item in vec)
+                    {
+                        if (item.Dat >= cutWgt)
+                        {
+                            newVec.InnerIdx.Add(item.Idx);
+                            newVec.InnerDat.Add(item.Dat);
+                        }
+                    }
+                }
+                vec = newVec;
+            }
+        }
 
         private static void GetDotProductSimilarity(SparseVector<double>.ReadOnly vec, double[] simVec, SparseMatrix<double>.ReadOnly trMtx, int startIdx)
         {

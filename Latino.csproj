@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{5B86AAD5-3FEA-487C-A518-4F846AF09E18}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -23,22 +23,9 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -65,7 +52,13 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
@@ -75,9 +68,12 @@
     <Compile Include="BinaryVector.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Misc\StopWatch.cs" />
+    <Compile Include="Model\AgglomerativeKMeansClusteringFast.cs" />
+    <Compile Include="Model\BatchUpdatedCentroidClassifier.cs" />
     <Compile Include="Model\CentroidData.cs" />
     <Compile Include="Model\HierarchicalBisectingClusteringFast.cs" />
-    <Compile Include="Model\SvmBinary.cs" />
+    <Compile Include="Model\NearestCentroidClassifier.cs" />
+    <Compile Include="Model\SvmBinaryClassifier.cs" />
     <Compile Include="Model\MajorityClassifier.cs" />
     <Compile Include="Model\MaximumEntropyClassifierFast.cs" />
     <Compile Include="Model\KnnClassifierFast.cs" />
@@ -136,6 +132,7 @@
     <Compile Include="Web\Exceptions.cs" />
     <Compile Include="Web\GoogleDefine.cs" />
     <Compile Include="Web\ISearchEngineCache.cs" />
+    <Compile Include="Web\OAuth.cs" />
     <Compile Include="Web\SearchEngine.cs" />
     <Compile Include="Web\SearchEngineResultItem.cs" />
     <Compile Include="Web\SearchEngineResultSet.cs" />
@@ -150,7 +147,7 @@
     <Compile Include="Model\UnlabeledDataset.cs" />
     <Compile Include="Model\IUnlabeledDataset.cs" />
     <Compile Include="Model\IUnlabeledExampleCollection.cs" />
-    <None Include="Experimental\Model\IncrementalKMeans.cs" />
+    <Compile Include="Model\IncrementalKMeansClustering.cs" />
     <Compile Include="Model\FuzzyKMeans.cs" />
     <Compile Include="Model\IDistance.cs" />
     <Compile Include="Model\IClustering.cs" />
@@ -159,7 +156,6 @@
     <Compile Include="Model\IModel.cs" />
     <Compile Include="Model\ISimilarity.cs" />
     <Compile Include="Model\MaxEnt.cs" />
-    <Compile Include="Model\BatchUpdateCentroidClassifier.cs" />
     <Compile Include="BinarySerializer.cs" />
     <Compile Include="ArrayList.cs" />
     <Compile Include="DescSort.cs" />
@@ -172,7 +168,6 @@
     <Compile Include="IXmlSerializable.cs" />
     <Compile Include="KeyDat.cs" />
     <Compile Include="ListEnum.cs" />
-    <Compile Include="Model\CentroidClassifier.cs" />
     <Compile Include="Model\Prediction.cs" />
     <Compile Include="Model\Cluster.cs" />
     <Compile Include="Model\ClusteringResult.cs" />
@@ -196,7 +191,7 @@
     <Compile Include="TextMining\StopWords\SerbianStopWordsLatin.cs" />
     <Compile Include="TextMining\StopWords\SloveneStopWords.cs" />
     <Compile Include="TextMining\TextMiningUtils.cs" />
-    <Compile Include="Experimental\TextMining\IncrementalBowSpace.cs" />
+    <Compile Include="TextMining\IncrementalBowSpace.cs" />
     <Compile Include="TextMining\Lemmatizer.cs" />
     <Compile Include="TextMining\IStemmer.cs" />
     <Compile Include="TextMining\Snowball\ISnowballStemmer.cs" />
