@@ -56,15 +56,14 @@ namespace Latino.Model
             double dotProd = 0;
             int i = 0, j = 0;
             int aCount = a.Count;
-            Utils.ThrowException(aCount == 0 ? new ArgumentValueException("a") : null);
             int bCount = b.Count;
-            Utils.ThrowException(bCount == 0 ? new ArgumentValueException("b") : null);
+            if (aCount == 0 || bCount == 0) { return 0; }
             ArrayList<int> aIdx = a.Inner.InnerIdx;
             ArrayList<double> aDat = a.Inner.InnerDat;
             ArrayList<int> bIdx = b.Inner.InnerIdx;
             ArrayList<double> bDat = b.Inner.InnerDat;
-            int aIdx_i = aCount == 0 ? 0 : aIdx[0];
-            int bIdx_j = bCount == 0 ? 0 : bIdx[0];
+            int aIdx_i = aIdx[0];
+            int bIdx_j = bIdx[0];
             while (true)
             {
                 if (aIdx_i < bIdx_j)
@@ -86,10 +85,14 @@ namespace Latino.Model
                 }
             }
             double aLen = ModelUtils.GetVecLenL2(a);
-            Utils.ThrowException(aLen == 0 ? new ArgumentValueException("a") : null);
             double bLen = ModelUtils.GetVecLenL2(b);
-            Utils.ThrowException(bLen == 0 ? new ArgumentValueException("b") : null);
             double lenMult = aLen * bLen;
+            if (lenMult == 0)
+            {
+                // lenMult == 0 implies that either a, b, or both are zero length. Zero length can only happen when all
+                // components of a vector are 0. Such zeroed vector can not be similar to any other vector, therefore sim = 0
+                return 0;
+            } 
             return dotProd / lenMult;
         }
 
